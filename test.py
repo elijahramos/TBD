@@ -13,17 +13,57 @@ from cryptography.hazmat.primitives import serialization
 
 import os
 import cnsts
-import Myencrypt
+import MyRSAEncrypt
+def main():
+	runTiem = True
+	while(runTiem):
+		print("0: exit\n1: encrypt\n2: decrypt\n3: makekeys\n--> ",end='')
+		u = input()
+		if(u=='0'): runTiem=False
+		elif(u=='1'): option1()
+		elif(u=='2'): option2()
+		elif(u=='3'): option3()
 
-# so this was me testing RSA encryption using both a key generator and a .pem key I had left over from the first lab.
-kg = rsa.generate_private_key(public_exponent=65537,key_size=2048,backend=default_backend())
-k = serialization.load_pem_private_key(open("/home/snerfoil/.ssh/TBD-secret2.pem", "rb").read(),password=None,backend=default_backend())
-ppk = serialization.load_pem_public_key(open("/home/snerfoil/.ssh/TBD-secret2.pub", "rb").read(),backend=default_backend())
+def option1():
+	print("Select file to encrypt: ",end='')
+	filePath = input()
+	print("Select public key: ",end='')
+	keyPath = input()
+	g = MyRSAEncrypt.norm(filePath,keyPath)# [RSAC,filePath,IV,".enc"]
+	
+	open((filePath+".rsa"), "wb").write(g[0])
+	open((filePath+".iv"), "wb").write(g[2])
+	open((filePath),"wb").write(b'\0')
+	
+	print("done",end='')
+	input()
+	
+def option2():
+	print("Select file to encrypt: ",end='')
+	filePath = input()
+	print("Select private key: ",end='')
+	keyPath = input()
+	
+	rsa = open((filePath+".rsa"),"rb").read()
+	iv = open((filePath+".iv"),"rb").read()
+	
+	open((filePath),"wb").write(MyRSAEncrypt.inv(rsa,filePath,iv,".enc",keyPath))
+	
+	print("done",end='')
+	input()
+	
+def option3():
+	print("where do you wish to save the keys?(dont type ext, just filename): ",end='')
+	u = input()
+	kg = rsa.generate_private_key(public_exponent=65537,key_size=2048,backend=default_backend())
+	#pk = private_key.private_bytes(encoding=serialization.Encoding.PEM,format=serialization.PrivateFormat.PKCS8,encryption_algorithm=serialization.BestAvailableEncryption(b'mypassword'))
+	prvkNoENC = kg.private_bytes(encoding=serialization.Encoding.PEM,format=serialization.PrivateFormat.PKCS8,encryption_algorithm=serialization.NoEncryption())
+	pubkNoENC = kg.public_key().public_bytes(encoding=serialization.Encoding.PEM,format=serialization.PublicFormat.SubjectPublicKeyInfo)
+	
+	open(u+".pem","wb").write(prvkNoENC)
+	open(u+".pub","wb").write(pubkNoENC)
+	print("done",end='')
+	input()
 
-m = b'I like butts :3'
-c = ppk.encrypt(m,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
-d = k.decrypt(c,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
-print(m)
-print(c)
-print(d)
+main()
 
