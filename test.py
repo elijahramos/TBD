@@ -5,28 +5,25 @@
 # open("that","wb").write(open("this","rb").read())
 # to convert a string into bytes use bytes("sampleTxt","utf-8")
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
+
 import os
 import cnsts
 import Myencrypt
 
-# prototype myfiledecrypt.norm
-print("specify filename: ",end='')
-a = input()
-s = open(a,"rb").read()
-k = os.urandom(cnsts.keyLength)# Constant#1 is the key length
-g = Myencrypt.norm(s,k) # 0:C 1:IV
-#open((a+".fucc"),"wb").write(g[0])
-#open((a+".iv"),"wb").write(g[1])
-#open((a+".key"),"wb").write(k)
-#print("done")
+# so this was me testing RSA encryption using both a key generator and a .pem key I had left over from the first lab.
+kg = rsa.generate_private_key(public_exponent=65537,key_size=2048,backend=default_backend())
+k = serialization.load_pem_private_key(open("/home/snerfoil/.ssh/TBD-secret2.pem", "rb").read(),password=None,backend=default_backend())
+ppk = serialization.load_pem_public_key(open("/home/snerfoil/.ssh/TBD-secret2.pub", "rb").read(),backend=default_backend())
 
-# prototype myfiledecrypt.inv
-#print("specify filename: ",end='')
-#a = input()
-#b = open((a+".fucc"),"rb").read()
-#c = open((a+".iv"),"rb").read()
-#d = open((a+".key"),"rb").read()
-#f = Myencrypt.inv(b,c,d)
-#open(a,"wb").write(f)
-#print("done")
+m = b'I like butts :3'
+c = ppk.encrypt(m,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+d = k.decrypt(c,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+print(m)
+print(c)
+print(d)
 
