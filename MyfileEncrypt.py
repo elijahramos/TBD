@@ -12,5 +12,6 @@ def norm(filepath):
     return [C, IV, key, ".enc"]                         #Return C, IV, key, and the extension of the encrypted file as a string
     
 def inv(filepath, IV, key, ext):
-    fileString = open(filepath+ext)
+    fileString = open(filepath+ext, "rb").read()        #Open the encrypted file and store it into fileString as bytes
+    return Myencrypt.inv(fileString, IV, key)           #Return the decrypted bytes obtained from Myencrypt
     
