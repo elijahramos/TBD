@@ -9,6 +9,8 @@ def norm(filepath):
     C = fileEncrypt[0]                                  #Create C variable to store the cipher from Myencrypt
     IV = fileEncrypt[1]                                 #Create IV variable to store the IV from Myencrypt
     open((filepath+".enc"), "wb").write(C)              #Create encrypted file and write the contents of the cipher into it
-    return [C, IV, key, "enc"]                          #Return C, IV, key, and the extension of the encrypted file as a string
+    return [C, IV, key, ".enc"]                         #Return C, IV, key, and the extension of the encrypted file as a string
     
-#def inv(filepath):
+def inv(filepath, IV, key, ext):
+    fileString = open(filepath+ext)
+    
