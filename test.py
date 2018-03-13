@@ -10,11 +10,11 @@ import cnsts
 import Myencrypt
 
 # prototype myfiledecrypt.norm
-#print("specify filename: ",end='')
-#a = input()
-#s = open(a,"rb").read()
-#k = os.urandom(cnsts.keyLength)# Constant#1 is the key length
-#g = Myencrypt.norm(s,k) # 0:C 1:IV
+print("specify filename: ",end='')
+a = input()
+s = open(a,"rb").read()
+k = os.urandom(cnsts.keyLength)# Constant#1 is the key length
+g = Myencrypt.norm(s,k) # 0:C 1:IV
 #open((a+".fucc"),"wb").write(g[0])
 #open((a+".iv"),"wb").write(g[1])
 #open((a+".key"),"wb").write(k)
