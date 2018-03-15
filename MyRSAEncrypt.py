@@ -10,6 +10,7 @@ def norm(key,keyPath): # this will work independent of MyfileEncrypt
 	k = serialization.load_pem_public_key(publicKeyData,backend=default_backend())# load public key 
 	RSAC = k.encrypt(key,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))# do the encryption
 	return RSAC # returns the encrypted key
+ 
 def inv(RSAC,keyPath):
 	kData = open(keyPath,"rb").read()
 	k = serialization.load_pem_private_key(kData,password=None,backend=default_backend())

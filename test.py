@@ -13,17 +13,16 @@ import cnsts
 import MyRSAEncrypt
 import MyfileEncrypt
 import Myencrypt
-import pickle # apparently python3's JSON cant handle byte stings, how fucking ironic.
-# pickle on the other hand is more than happy to turn just about any variable/value/object/or whatever into a bytestring, and backend
-# just remeber, pickle.dumps(theThingYouWantToBecomeAByteString) returns a byte string.
-# and pickle.loads(byteString) will do the inverse of that.
-# there is also load() and dump() functions which do the same thing but take a file object as input, Im... not gona bother with these specifically tho.
+import pickle   #use pickle as opposed to JSON due to issues with byte strings
+                #pickle.dumps(theThingYouWantToBecomeAByteString) returns a byte string.
+                #pickle.loads(byteString) will do the inverse of that.
+
 def main():
 	runTiem = True
 	while(runTiem):
 		print("0: exit\n1: encrypt\n2: decrypt\n3: makekeys\n4: basicEncrypt\n5: basicDecrypt\n--> ",end='')
 		u = input()
-		if(u=='0'): runTiem=False
+		if(u=='0'): runTime=False
 		elif(u=='1'): option1()
 		elif(u=='2'): option2()
 		elif(u=='3'): option3()
@@ -36,11 +35,11 @@ def option1():
 	print("Select public key: ",end='')
 	keyPath = input()
 	
-	f = MyfileEncrypt.norm(filePath)# C, IV, key,fileDir,fileName,fileExt
-	g = MyRSAEncrypt.norm(f[2],keyPath)# encrypted key
+	f = MyfileEncrypt.norm(filePath) #filepath = [C, IV, key,fileDir,fileName,fileExt]
+	g = MyRSAEncrypt.norm(f[2],keyPath) #encrypted key
 	
-	open((f[3]+f[4]+".ukn"),"wb").write(pickle.dumps([g,f[0],f[1],f[5]]))# [RSAC,C,IV,fileext]
-	os.remove(filePath) # delete the file.
+	open((f[3]+f[4]+".ukn"),"wb").write(pickle.dumps([g,f[0],f[1],f[5]])) #[RSAC,C,IV,fileext]
+	os.remove(filePath) #delete the file.
 	
 	print("done",end='')
 	input()
@@ -51,23 +50,23 @@ def option2():
 	print("Select private key: ",end='')
 	keyPath = input()
 	
-	fileObj = open(filePath, "rb") #open file, and save the referance for l8r
-	location = filePath.rstrip(os.path.basename(fileObj.name)) # cut off the file's dir
-	cutt = (os.path.basename(fileObj.name)).partition('.') # we cutout the file's name and ext
+	fileObj = open(filePath, "rb") #open file, and save the referance for later
+	location = filePath.rstrip(os.path.basename(fileObj.name)) #cut off the file's directory
+	cutFile = (os.path.basename(fileObj.name)).partition('.') #place the file's name into a list [fileName, ., ext]
 	fileString = fileObj.read()
 	
-	g = pickle.loads(fileString) # gets the above [RSAC,C,IV,fileext]
+	g = pickle.loads(fileString) #gets the above [RSAC, C, IV, ext]
 	
 	buff = Myencrypt.inv(g[1],g[2],MyRSAEncrypt.inv(g[0],keyPath))
-	# we would use MyfileEncrypt if JUST the cipher text was stored in a file
-	# but it isnt, its pickled with the IV, RSAC, and ext for convienence.
-	open((cutt[0]+'.'+g[3]),"wb").write(buff) # lets not get ahead of ourselfs
+	#we would use MyfileEncrypt if JUST the cipher text was stored in a file
+	#but it isnt, its pickled with the IV, RSAC, and ext for convienence.
+	open((cutFile[0]+'.'+g[3]),"wb").write(buff)
 	os.remove(filePath) # delete the file.
 	
 	print("done",end='')
 	input()
 	
-def option3(): # keygen thingy,
+def option3(): #key generator
 	print("where do you wish to save the keys?(dont type ext, just filename): ",end='')
 	u = input()
 	kg = rsa.generate_private_key(public_exponent=65537,key_size=2048,backend=default_backend())
