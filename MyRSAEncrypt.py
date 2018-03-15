@@ -7,14 +7,12 @@ from cryptography.hazmat.primitives import serialization
 
 import MyfileEncrypt
 
-def norm(filePath,publicKeyPath):
-	g=MyfileEncrypt.norm(filePath)# passthrough
-	
-	k = serialization.load_pem_public_key(open(publicKeyPath, "rb").read(),backend=default_backend())# load public key 
-	c = k.encrypt(g[2],padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))# do the encryption
-	#write 'c' to file.
-	return [c,g[0],g[1],g[3]]# [RSAC,C,IV,ext]
-def inv(RSAC,filePath,IV,ext,kPath):
-	k = serialization.load_pem_private_key(open(kPath, "rb").read(),password=None,backend=default_backend())
+def norm(plainText,publicKeyData):
+	g=MyfileEncrypt.norm(plainText)# passthrough
+	k = serialization.load_pem_public_key(publicKeyData,backend=default_backend())# load public key 
+	RSAC = k.encrypt(g[2],padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))# do the encryption
+	return [RSAC,g[0],g[1]]# [RSAC,C,IV]
+def inv(RSAC,C,IV,kData):
+	k = serialization.load_pem_private_key(kData,password=None,backend=default_backend())
 	d = k.decrypt(RSAC,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
-	return MyfileEncrypt.inv(filePath,IV,d,ext) # the deciphered data
+	return MyfileEncrypt.inv(C,IV,d) # the deciphered data

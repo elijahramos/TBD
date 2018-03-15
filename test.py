@@ -14,6 +14,11 @@ from cryptography.hazmat.primitives import serialization
 import os
 import cnsts
 import MyRSAEncrypt
+import pickle # apparently python3's JSON cant handle byte stings, how fucking ironic.
+# pickle on the other hand is more than happy to turn just about any variable/value/object/or whatever into a bytestring, and backend
+# just remeber, pickle.dumps(theThingYouWantToBecomeAByteString) returns a byte string.
+# and pickle.loads(byteString) will do the inverse of that.
+# there is also load() and dump() functions which do the same thing but take a file object as input, Im... not gona bother with these specifically tho.
 def main():
 	runTiem = True
 	while(runTiem):
@@ -29,25 +34,30 @@ def option1():
 	filePath = input()
 	print("Select public key: ",end='')
 	keyPath = input()
-	g = MyRSAEncrypt.norm(filePath,keyPath)# [RSAC,filePath,IV,".enc"]
 	
-	open((filePath+".rsa"), "wb").write(g[0])
-	open((filePath+".iv"), "wb").write(g[2])
-	open((filePath),"wb").write(b'\0')
+	plainText = open(filePath,"rb").read()
+	plainKey = open(keyPath,"rb").read()
+	
+	g = MyRSAEncrypt.norm(plainText,plainKey)# [RSAC,C,IV]
+	
+	open((filePath),"wb").write(pickle.dumps(g)) # hehe :3, rather than writing a new file and deleting the old one, ima just "corrupt" the origonal data.
 	
 	print("done",end='')
 	input()
 	
 def option2():
-	print("Select file to encrypt: ",end='')
+	print("Select file to decrypt: ",end='')
 	filePath = input()
 	print("Select private key: ",end='')
 	keyPath = input()
 	
-	rsa = open((filePath+".rsa"),"rb").read()
-	iv = open((filePath+".iv"),"rb").read()
+	g = pickle.loads(open((filePath),"rb").read()) # should already have been encrypted and pickled.
 	
-	open((filePath),"wb").write(MyRSAEncrypt.inv(rsa,filePath,iv,".enc",keyPath))
+	#rsa = open((filePath+".rsa"),"rb").read()
+	#iv = open((filePath+".iv"),"rb").read()
+	
+	buff = MyRSAEncrypt.inv(g[0],g[1],g[2],open(keyPath,"rb").read())
+	open((filePath),"wb").write(buff) # lets not get ahead of ourselfs
 	
 	print("done",end='')
 	input()
