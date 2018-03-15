@@ -1,6 +1,3 @@
-# so a quick thing to know here b4 we get into this heavly is that you can have byte strings, basically its an array of values between 0 and 255
-# similar to how you can take a file and put it in the program as a big string A-la open("file.txt").read()
-# you can do the same thing but return it as a byte string by adding "rb" as a parameter
 # the command below will copy the file "this" to "that"
 # open("that","wb").write(open("this","rb").read())
 # to convert a string into bytes use bytes("sampleTxt","utf-8")
