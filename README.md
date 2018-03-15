@@ -1,4 +1,2 @@
-# TBD
-lab2.py was removed, dont repush it. instead I have the functions (and the file with the constants) in seperate .py files. this is to make it easier to edit.
-MyRSAEncrypt.py needs to be made.
-MyFileEncrypt.py needs to be made
+# TBD Bulletin board.
+big thanks to python3's pickle module for getting us out of a pickle. but now the modularization on our functions makes more sense. Because of this, the test.py program can now write Ciphertext, IV, and the RSA key in the same file, specifically the origonal file. basically rather than deleting the origonal file and adding a new encrypted file, it simply overwrites the file with the encrypted data, (well, its the pickled data that contains the above mentioned statements). also the whole program does not take file extentions into account. (I mean... why would you, who cares if its a .doc or .jpg or .jif i mean .gif, its all bytes to me)
