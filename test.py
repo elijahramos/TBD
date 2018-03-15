@@ -14,6 +14,8 @@ from cryptography.hazmat.primitives import serialization
 import os
 import cnsts
 import MyRSAEncrypt
+import MyfileEncrypt
+import Myencrypt
 import pickle # apparently python3's JSON cant handle byte stings, how fucking ironic.
 # pickle on the other hand is more than happy to turn just about any variable/value/object/or whatever into a bytestring, and backend
 # just remeber, pickle.dumps(theThingYouWantToBecomeAByteString) returns a byte string.
@@ -35,12 +37,11 @@ def option1():
 	print("Select public key: ",end='')
 	keyPath = input()
 	
-	plainText = open(filePath,"rb").read()
-	plainKey = open(keyPath,"rb").read()
+	f = MyfileEncrypt.norm(filePath)# C, IV, key,fileDir,fileName,fileExt
+	g = MyRSAEncrypt.norm(f[2],keyPath)# encrypted key
 	
-	g = MyRSAEncrypt.norm(plainText,plainKey)# [RSAC,C,IV]
-	
-	open((filePath),"wb").write(pickle.dumps(g)) # hehe :3, rather than writing a new file and deleting the old one, ima just "corrupt" the origonal data.
+	open((f[3]+f[4]+".ukn"),"wb").write(pickle.dumps([g,f[0],f[1],f[5]]))# [RSAC,C,IV,fileext]
+	os.remove(filePath) # delete the file.
 	
 	print("done",end='')
 	input()
@@ -51,18 +52,23 @@ def option2():
 	print("Select private key: ",end='')
 	keyPath = input()
 	
-	g = pickle.loads(open((filePath),"rb").read()) # should already have been encrypted and pickled.
+	fileObj = open(filePath, "rb") #open file, and save the referance for l8r
+	location = filePath.rstrip(os.path.basename(fileObj.name)) # cut off the file's dir
+	cutt = (os.path.basename(fileObj.name)).partition('.') # we cutout the file's name and ext
+	fileString = fileObj.read()
 	
-	#rsa = open((filePath+".rsa"),"rb").read()
-	#iv = open((filePath+".iv"),"rb").read()
+	g = pickle.loads(fileString) # gets the above [RSAC,C,IV,fileext]
 	
-	buff = MyRSAEncrypt.inv(g[0],g[1],g[2],open(keyPath,"rb").read())
-	open((filePath),"wb").write(buff) # lets not get ahead of ourselfs
+	buff = Myencrypt.inv(g[1],g[2],MyRSAEncrypt.inv(g[0],keyPath))
+	# we would use MyfileEncrypt if JUST the cipher text was stored in a file
+	# but it isnt, its pickled with the IV, RSAC, and ext for convienence.
+	open((cutt[0]+'.'+g[3]),"wb").write(buff) # lets not get ahead of ourselfs
+	os.remove(filePath) # delete the file.
 	
 	print("done",end='')
 	input()
 	
-def option3():
+def option3(): # keygen thingy,
 	print("where do you wish to save the keys?(dont type ext, just filename): ",end='')
 	u = input()
 	kg = rsa.generate_private_key(public_exponent=65537,key_size=2048,backend=default_backend())
@@ -70,8 +76,8 @@ def option3():
 	prvkNoENC = kg.private_bytes(encoding=serialization.Encoding.PEM,format=serialization.PrivateFormat.PKCS8,encryption_algorithm=serialization.NoEncryption())
 	pubkNoENC = kg.public_key().public_bytes(encoding=serialization.Encoding.PEM,format=serialization.PublicFormat.SubjectPublicKeyInfo)
 	
-	open(u+".pem","wb").write(prvkNoENC)
-	open(u+".pub","wb").write(pubkNoENC)
+	open(u+"_prv.pem","wb").write(prvkNoENC)
+	open(u+"_pub.pem","wb").write(pubkNoENC)# these are both .pem files, I looked it up.
 	print("done",end='')
 	input()
 
