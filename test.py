@@ -21,12 +21,14 @@ import pickle # apparently python3's JSON cant handle byte stings, how fucking i
 def main():
 	runTiem = True
 	while(runTiem):
-		print("0: exit\n1: encrypt\n2: decrypt\n3: makekeys\n--> ",end='')
+		print("0: exit\n1: encrypt\n2: decrypt\n3: makekeys\n4: basicEncrypt\n5: basicDecrypt\n--> ",end='')
 		u = input()
 		if(u=='0'): runTiem=False
 		elif(u=='1'): option1()
 		elif(u=='2'): option2()
 		elif(u=='3'): option3()
+		elif(u=='4'): option4()
+		elif(u=='5'): option5()
 
 def option1():
 	print("Select file to encrypt: ",end='')
@@ -75,6 +77,34 @@ def option3(): # keygen thingy,
 	
 	open(u+"_prv.pem","wb").write(prvkNoENC)
 	open(u+"_pub.pem","wb").write(pubkNoENC)# these are both .pem files, I looked it up.
+	print("done",end='')
+	input()
+	
+def option4():
+	print("select file to encrypt: ",end='')
+	filePath = input();
+	g = MyfileEncrypt.norm(filePath) # [C, IV, key,fileDir,fileName,fileExt]
+	
+	open((g[3]+g[4]+".bukn"),"wb").write(pickle.dumps([g[0],g[1],g[5]]))# [C,IV,ext]
+	open((g[3]+g[4]+".buknk"),"wb").write(g[2])# key RAWR
+	os.remove(filePath) # delete the file.
+	
+	print("done",end='')
+	input()
+	
+def option5():
+	print("select file to decrypt: ",end='')
+	filePath = input()
+	print("specify the file's key: ",end='')
+	keyPath = input()
+	
+	cutt = (os.path.basename(filePath)).partition('.') # we cutout the file's name and ext
+	
+	g = MyfileEncrypt.inv(filePath,keyPath) # [P,ext]
+	
+	open((cutt[0]+"."+g[1]),"wb").write(g[0])# dere it is
+	os.remove(filePath) # delete the file.
+	os.remove(keyPath) # delete the file.
 	print("done",end='')
 	input()
 

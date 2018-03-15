@@ -1,6 +1,7 @@
 import Myencrypt
 import os
 import cnsts
+import pickle
 
 def norm(filePath):
 	fileObj = open(filePath, "rb") #open file, and save the referance for l8r
@@ -17,9 +18,10 @@ def norm(filePath):
 # there was a conflict between these functions that basically breaks MyRSAEncrypt.inv()
 # norm needed to return the filePath so that the inv could actually goto where the cipher text was, instead of simply having, the cipher text.
     
-def inv(filePath, IV, key):
-	# if the C byte string from the first function was directly saved to a file
+def inv(filePath, keyPath):
+	# if the C byte string from the first function was directly saved to a file, actually ima make this a piclked file :3
 	#this function can be called, along with the IV and key, to decrypt it.
-	C = open(filePath, "rb").read() #more file IO stuffs
-	return Myencrypt.inv(C, IV, key) #Return the decrypted bytes obtained from Myencrypt
+	C = pickle.loads(open(filePath, "rb").read()) #more file IO stuffs, expect [C,IV,ext]
+	key = open(keyPath, "rb").read()# key should be raw
+	return [(Myencrypt.inv(C[0], C[1], key)),C[2]] #Return the decrypted bytes obtained from Myencrypt, and the ext
     
