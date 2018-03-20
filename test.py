@@ -20,9 +20,9 @@ import pickle   #use pickle as opposed to JSON due to issues with byte strings
 def main():
 	runTiem = True
 	while(runTiem):
-		print("0: exit\n1: encrypt\n2: decrypt\n3: makekeys\n4: basicEncrypt\n5: basicDecrypt\n--> ",end='')
+		print("0: exit\n1: encrypt(RSA)\n2: decrypt(RSA)\n3: makekeys\n4: basicEncrypt\n5: basicDecrypt\n--> ",end='')
 		u = input()
-		if(u=='0'): runTime=False
+		if(u=='0'): runTiem=False
 		elif(u=='1'): option1()
 		elif(u=='2'): option2()
 		elif(u=='3'): option3()
