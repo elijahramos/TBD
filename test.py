@@ -18,6 +18,17 @@ import MyencryptMAC
 import pickle   #use pickle as opposed to JSON due to issues with byte strings
                 #pickle.dumps(theThingYouWantToBecomeAByteString) returns a byte string.
                 #pickle.loads(byteString) will do the inverse of that.
+import json # BUTT GUESS WAT, WII HEAV 2 YOOSE JSON B-CUZ TEACH SAID SOHE
+# anyway the jist here is that what we are going to serialize dictionaries into json files.
+# first off a dictionary can be made using {}, and much how lists use integers to index stuff,
+# dictionaries use words, er strings rather. just keep that in mind
+# another thing is this, like I sadi b4, byteStrings are not kosher for JSON, however lists are.
+# turn a byteString into an array like this -> list(b'loal wut\x69')
+# and back -> bytes(arrayOfNumbers)
+# use JSON to write files -> json.dump(theDict,open("file_name.json",'w'),indent=4)
+# (the indent is just there to make it readable, but it is optional)
+# and back - > json.load(open("file_name.json",'r'))
+# giving us the dictionary I mentioned earlier.
 
 def main():
 	runTiem = True
@@ -120,7 +131,7 @@ def option6():
 	f = MyfileEncryptMAC.norm(filePath) #filepath = [C, IV, key,fileDir,fileName,fileExt,tag,HMAC]
 	
 	
-	ccat = pickle.dumps([f[2],f[7]]) # concatinate the key and HMAC together, my special way.
+	ccat = pickle.dumps([f[2],f[7]]) # I still have a use for pickle, its to concatinate the key and HMAC together.
 	
 	g = b''
 	while(ccat!=b''):# so this whole bit was to get around a 241byte limitation of RSA encryption.
@@ -132,7 +143,16 @@ def option6():
 		#input()
 	# the trick here was to only RSAencrypt the conactination of the key and HMAC key(<- the phat fucc rite here), 
 	
-	open((f[3]+f[4]+".ukn"),"wb").write(pickle.dumps([g,f[0],f[1],f[5],f[6]])) #[RSAC,C,IV,fileext,tag]
+	#open((f[3]+f[4]+".ukn"),"wb").write(pickle.dumps([g,f[0],f[1],f[5],f[6]])) #[RSAC,C,IV,fileext,tag]
+	# the above was a pickle writer, dropped in favor of JSON.
+	theDict = { # all of these are arrays of int values between 0-255
+		'RSACipher':list(g),
+		'C':list(f[0]),
+		'IV':list(f[1]),
+		'ext':f[5], # this is a string
+		'tag':list(f[6])
+	}
+	json.dump(theDict,open((f[3]+f[4]+".json"),'w'),indent=4)
 	os.remove(filePath) #delete the file.
 	
 	print("done",end='')
@@ -144,29 +164,30 @@ def option7():
 	print("Select private key: ",end='')
 	keyPath = input()
 	
-	fileObj = open(filePath, "rb") #open file, and save the referance for later
+	fileObj = open(filePath, "r") #open file, and save the referance for later
 	location = filePath.rstrip(os.path.basename(fileObj.name)) #cut off the file's directory
 	cutFile = (os.path.basename(fileObj.name)).partition('.') #place the file's name into a list [fileName, ., ext]
-	fileString = fileObj.read()
+	theDict = json.load(fileObj)
+	# gets the above [RSAC, C, IV, ext,tag]
 	
-	g = pickle.loads(fileString) #gets the above [RSAC, C, IV, ext,tag]
-	gg = g[0] # this value needs to get un pickled [key,HMAC] <- but this is encrypted in a funny way.
-
+	RSAC = bytes(theDict['RSACipher'])# careful, its pickled.
+	C = bytes(theDict['C'])
+	IV = bytes(theDict['IV'])
+	tagData = bytes(theDict['tag'])
+	
 	bb = b''
-	while(gg!=b''):
+	while(RSAC!=b''):
 		#print(str(len(gg[:256])),end=', ')
-		thBit = MyRSAEncrypt.inv(gg[:256],keyPath) #encrypted key
-		gg = gg[256:]
+		thBit = MyRSAEncrypt.inv(RSAC[:256],keyPath) #encrypted key
+		RSAC = RSAC[256:]
 		bb = bb + thBit # the encrypted bit is double in size '256'
 		#print(str(len(thBit)),end='')
 		#input()
+	gg = pickle.loads(bb)# here is my idea of undoing the concatination, remeber [key, HMAC]
 	
-	thisDummy = pickle.loads(bb)
-	
-	buff = MyencryptMAC.inv(g[1],g[2],thisDummy[0],g[4],thisDummy[1])
-	#we would use MyfileEncrypt if JUST the cipher text was stored in a file
-	#but it isnt, its pickled with the IV, RSAC, and ext for convienence.
-	open((cutFile[0]+'.'+g[3]),"wb").write(buff)
+	buff = MyencryptMAC.inv(C,IV,gg[0],tagData,gg[1])
+	open((cutFile[0]+'.'+theDict['ext']),"wb").write(buff)
+	fileObj.close()# hey you forgot to close this :/
 	os.remove(filePath) # delete the file.
 	
 	print("done",end='')
