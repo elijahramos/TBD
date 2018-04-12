@@ -132,13 +132,14 @@ def option6():
 	
 	
 	ccat = pickle.dumps([f[2],f[7]]) # I still have a use for pickle, its to concatinate the key and HMAC together.
+	hh = MyRSAEncrypt.norm(ccat,keyPath)
 	
-	g = b''
-	while(ccat!=b''):# so this whole bit was to get around a 241byte limitation of RSA encryption.
+	#g = b''
+	#while(ccat!=b''):# so this whole bit was to get around a 241byte limitation of RSA encryption.
 		#print(str(len(ccat[:128])),end=', ')
-		thBit = MyRSAEncrypt.norm(ccat[:128],keyPath) #encrypted key
-		ccat = ccat[128:]
-		g = g + thBit # the encrypted bit is double in size '256'
+		#thBit = MyRSAEncrypt.norm(ccat[:128],keyPath) #encrypted key
+		#ccat = ccat[128:]
+		#g = g + thBit # the encrypted bit is double in size '256'
 		#print(str(len(thBit)),end='')
 		#input()
 	# the trick here was to only RSAencrypt the conactination of the key and HMAC key(<- the phat fucc rite here), 
@@ -146,7 +147,7 @@ def option6():
 	#open((f[3]+f[4]+".ukn"),"wb").write(pickle.dumps([g,f[0],f[1],f[5],f[6]])) #[RSAC,C,IV,fileext,tag]
 	# the above was a pickle writer, dropped in favor of JSON.
 	theDict = { # all of these are arrays of int values between 0-255
-		'RSACipher':list(g),
+		'RSACipher':list(hh),
 		'C':list(f[0]),
 		'IV':list(f[1]),
 		'ext':f[5], # this is a string
@@ -175,16 +176,17 @@ def option7():
 	IV = bytes(theDict['IV'])
 	tagData = bytes(theDict['tag'])
 	
-	bb = b''
-	while(RSAC!=b''):
+	hh = MyRSAEncrypt.inv(RSAC,keyPath)
+	
+	#bb = b''
+	#while(RSAC!=b''):
 		#print(str(len(gg[:256])),end=', ')
-		thBit = MyRSAEncrypt.inv(RSAC[:256],keyPath) #encrypted key
-		RSAC = RSAC[256:]
-		bb = bb + thBit # the encrypted bit is double in size '256'
+		#thBit = MyRSAEncrypt.inv(RSAC[:256],keyPath) #encrypted key
+		#RSAC = RSAC[256:]
+		#bb = bb + thBit # the encrypted bit is double in size '256'
 		#print(str(len(thBit)),end='')
 		#input()
-	gg = pickle.loads(bb)# here is my idea of undoing the concatination, remeber [key, HMAC]
-	
+	gg = pickle.loads(hh)# here is my idea of undoing the concatination, remeber [key, HMAC]
 	buff = MyencryptMAC.inv(C,IV,gg[0],tagData,gg[1])
 	open((cutFile[0]+'.'+theDict['ext']),"wb").write(buff)
 	fileObj.close()# hey you forgot to close this :/
