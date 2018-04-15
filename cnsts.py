@@ -6,6 +6,6 @@ IVLengthExpt=16 # unused
 padding=128
 kPrv = "pay_no_attention_to_these_files"
 kPub = "go_about_your_buisness"
-HmacKeyLength=32
+hmacKeyLength=32
 
 #Python3 has no "constants" but this does the job.
