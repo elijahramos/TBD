@@ -11,12 +11,8 @@ def norm(filePath):
 	location = filePath.rstrip(os.path.basename(fileObj.name)) # cut off the file's dir
 	cutFile = (os.path.basename(fileObj.name)).partition('.') #place the file's name into a list [fileName, ., ext]
 	
-	# Yay Keygen, too bad I can have sick techno playing while this happens.
-	#kg = rsa.generate_private_key(public_exponent=65537,key_size=2048,backend=default_backend())# its normally 2048
-	#hmacKey = kg.private_bytes(encoding=serialization.Encoding.PEM,format=serialization.PrivateFormat.PKCS8,encryption_algorithm=serialization.NoEncryption())
-	# ight here is the ordeal, so after thinking this over, I THINK I may have misunderstood him when he said that this wasnt nessary.
-	# so while using this RSA key for the hmac may have worked out, it was rather unessary, instead im using a random number for the hmacKey.
-	# it is way shorter and I dont have to do any cutting fuckery. anyway, at least thats nice.
+	# I once did something dumb where I used more RSA keys to encrypt each file.
+	# turns out that was totaly unessary, and problematic.
 	
 	fileString = fileObj.read()
 	key = os.urandom(cnsts.keyLength) #Generate a 32 byte key
@@ -30,6 +26,7 @@ def norm(filePath):
 # there was a conflict between these functions that basically breaks MyRSAEncrypt.inv()
 # norm needed to return the filePath so that the inv could actually goto where the cipher text was, instead of simply having, the cipher text.
     
+# you can just ingore the stuff below. because we do this stuff with json files the code below is useless.
 def inv(filePath, keyPath, HMACPath):
 	# if the C byte string from the first function was directly saved to a file, actually ima make this a piclked file :3
 	#this function can be called, along with the IV and key, to decrypt it.
