@@ -7,5 +7,8 @@ padding=128
 kPrv = "pay_no_attention_to_these_files"
 kPub = "go_about_your_buisness"
 hmacKeyLength=32
+serverUrl="localhost"
+saveData="hueHue"
+serverPort=3000
 
 #Python3 has no "constants" but this does the job.
