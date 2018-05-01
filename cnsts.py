@@ -7,7 +7,7 @@ padding=128
 kPrv = "pay_no_attention_to_these_files"
 kPub = "go_about_your_buisness"
 hmacKeyLength=32
-serverUrl="localhost"
+serverUrl="funniiboiz.me"
 saveData="hueHue"
 serverPort=3000
 
