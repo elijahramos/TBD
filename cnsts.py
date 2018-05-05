@@ -10,5 +10,6 @@ hmacKeyLength=32
 serverUrl="funniiboiz.me"
 saveData="zzx_also_delete_this_at_your_peril.json"
 serverPort=3000
+auth='secret coed'
 
 #Python3 has no "constants" but this does the job.
